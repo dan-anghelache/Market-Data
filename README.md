@@ -7,4 +7,4 @@
 
 ### Returns a Tkinter object:
 
-![export](https://user-images.githubusercontent.com/38115733/80734394-03065500-8b07-11ea-96c0-65f0891c2fea.png)
+![export](https://user-images.githubusercontent.com/38115733/80735003-f59d9a80-8b07-11ea-9c54-839296545534.png)

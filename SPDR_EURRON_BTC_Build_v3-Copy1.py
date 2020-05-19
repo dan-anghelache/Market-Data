@@ -1,12 +1,22 @@
+#!/usr/bin/env python
+# coding: utf-8
+
+# In[ ]:
+
+
 import requests
 import pandas as pd
 import csv
 import re
-
+#from sys import platform as sys_pf
+#if sys_pf == 'darwin':
+import matplotlib
+#matplotlib.use("TkAgg")
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from matplotlib import pyplot as plt
 from PIL import Image
 from PIL import ImageTk as itk
-#from skimage.transform import rescale, resize, downscale_local_mean
+from skimage.transform import rescale, resize, downscale_local_mean
 
 pd.plotting.register_matplotlib_converters()
 
@@ -100,15 +110,19 @@ df1 = df1[1:31]
 df1.rename(columns=header)
 #df1.loc[[2]]
 df1['close'] = df1['close'].astype(float)
+df1['close'] = df1['close'] / df1.at[1,'close'] * 100
 df1['low'] = df1['low'].astype(float)
 df1['timestamp'] = df1['timestamp'].astype('datetime64')
+#print (df1.at[1,'close'])
+
 print(df1.head())
 
 ### Plot - EUR/RON - Daily
 
-df1.plot(x = "timestamp", y = "close", legend=False, linewidth=12, markevery=10)
+EURRON_Figure = plt.figure(figsize=(4,0.7), dpi=30)
+plt.plot(df1['timestamp'], df1['close'],linewidth=2)
 plt.axis('off')
-plt.savefig('EUR_RON.png')  
+#plt.show()
 
 ### ALPHA VANTAGE API - BTC/GBP ###
 
@@ -134,15 +148,17 @@ df2 = df2[1:31]
 df2.rename(columns=header)
 #df2.loc[[2]]
 df2['close (GBP)'] = df2['close (GBP)'].astype(float)
+df2['close (GBP)'] = df2['close (GBP)'] / df2.at[1,'close (GBP)'] * 100
 #df2['low'] = df1['low'].astype(float)
 df2['timestamp'] = df2['timestamp'].astype('datetime64')
 print(df2.head())
 
 ### Plot - BTC/GBP - Daily ###
 
-df2.plot(x = "timestamp", y = "close (GBP)", legend=False, linewidth=12)
+BTCGBP_Figure = plt.figure(figsize=(4,0.7), dpi=30)
+plt.plot(df2['timestamp'], df2['close (GBP)'], linewidth=2)
 plt.axis('off')
-plt.savefig('BTC_GBP.png')  
+#plt.savefig('BTC_GBP.png')  
 
 ### Daily BTC/GBP change ###
 
@@ -187,7 +203,11 @@ import tkinter as tk
 
 root = tk.Tk()
 root.title("Market Data Update")
-r = 0
+r = 1
+
+tk.Label(text='FX Daily Change', font = 'bold', width=15).grid(row=0,column=1)
+tk.Label(text='Latest Close', font = 'bold', width=15).grid(row=0,column=2)
+tk.Label(text='Monthly Movement', font = 'bold', width=15).grid(row=0,column=3)
 
 for key1,key2,key3,key4 in zip(Daily_data,Daily_data_change,Daily_data_change_delta,Graphs_PNG):
     tk.Label(text=key1, relief=tk.RIDGE, width=15).grid(row=r,column=0)
@@ -200,20 +220,17 @@ for key1,key2,key3,key4 in zip(Daily_data,Daily_data_change,Daily_data_change_de
 
     tk.Label(text=Daily_data_change_delta[key3], bg=bg_color, relief=tk.RIDGE, width=15).grid(row=r,column=1)
     tk.Label(text=Daily_data[key1], bg=bg_color, relief=tk.RIDGE, width=15).grid(row=r,column=2)
-    if Graphs_PNG[key4] is not None:
-            img = Image.open(Graphs_PNG[key4])
-            #img = rescale(img, 0.25, anti_aliasing=False)
-            print(img.size)
-            print(img.filename)
-            #img.thumbnail(216,144)
-            img= img.resize((100,25), resample=0)
-            graph = itk.PhotoImage(img)
-            tk.Label(image = graph).grid(row=r,column=3)
-            r = r + 1
-    else:
-            r = r + 1
+    r += 1
+
+FigureA_canvas = FigureCanvasTkAgg(EURRON_Figure, master=root)
+FigureA_canvas.get_tk_widget().grid(row=2,column=3,sticky='nswe')
+FigureB_canvas = FigureCanvasTkAgg(BTCGBP_Figure, master=root)
+FigureB_canvas.get_tk_widget().grid(row=3,column=3,sticky='nswe')
     
 tk.mainloop()
+
+
+# In[ ]:
 
 
 
